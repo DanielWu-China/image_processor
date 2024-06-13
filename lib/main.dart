@@ -37,10 +37,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   void _incrementCounter() {
-    setState(() {
-    });
+    setState(() {});
   }
 
   @override
@@ -56,11 +54,13 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             const Image(
               image: AssetImage("assets/images/origin.png"),
-              width: 220, height: 200,
+              width: 220,
+              height: 200,
             ),
             const Image(
               image: AssetImage("assets/images/mask.jpeg"),
-              width: 220, height: 200,
+              width: 220,
+              height: 200,
             ),
             CutoutImageWidget()
           ],
@@ -82,15 +82,14 @@ class _CutoutImageWidgetState extends State<CutoutImageWidget> {
     try {
       final String originPath = await loadAsset('assets/images/origin.png');
       final String maskPath = await loadAsset('assets/images/mask.jpeg');
-      final cutoutPath = await ImageProcessor().cutoutImage(
-          originPath, maskPath);
+      final cutoutPath =
+          await ImageProcessor().cutoutImage(originPath, maskPath);
       setState(() {
         _cutoutPath = cutoutPath;
       });
     } catch (e) {
       print('Error: $e');
     }
-
   }
 
   @override
@@ -100,10 +99,19 @@ class _CutoutImageWidgetState extends State<CutoutImageWidget> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if (_cutoutPath != null)
-            Container(
-                width: 220, // 设置宽度
-                height: 200, // 设置高度
-                child: Image.file(File(_cutoutPath!))),
+            ShaderMask(
+              blendMode: BlendMode.dstOut, // 设置混合模式，将目标像素设为透明
+              shaderCallback: (Rect bounds) {
+                return LinearGradient(
+                  colors: [Colors.transparent, Colors.black], // 设置透明渐变色
+                  stops: [0.8, 1.0], // 控制透明度渐变
+                ).createShader(bounds);
+              },
+              child: Container(
+                  width: 220, // 设置宽度
+                  height: 200, // 设置高度
+                  child: Image.file(File(_cutoutPath!))),
+            ),
           ElevatedButton(
             onPressed: _cutoutImage,
             child: Text('Cutout Image'),
@@ -119,7 +127,8 @@ class _CutoutImageWidgetState extends State<CutoutImageWidget> {
     final buffer = byteData.buffer;
     final directory = await getTemporaryDirectory();
     final file = File('${directory.path}/${path.split('/').last}');
-    await file.writeAsBytes(buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
+    await file.writeAsBytes(
+        buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
     return file.path;
   }
 }
