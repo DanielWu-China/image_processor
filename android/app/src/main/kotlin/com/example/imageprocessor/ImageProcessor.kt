@@ -1,5 +1,6 @@
 package com.example.imageprocessor
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
@@ -11,7 +12,7 @@ import java.io.FileOutputStream
 
 class ImageProcessor : FlutterPlugin, MethodChannel.MethodCallHandler {
     private lateinit var channel: MethodChannel
-    private lateinit var applicationContext: android.content.Context
+    private lateinit var applicationContext: Context
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(binding.binaryMessenger, "image_processor")

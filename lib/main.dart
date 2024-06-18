@@ -37,9 +37,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  void _incrementCounter() {
-    setState(() {});
-  }
+
+  double _top = 0.0; //距顶部的偏移
+  double _left = 0.0;//距左边的偏移
 
   @override
   Widget build(BuildContext context) {
@@ -52,17 +52,49 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Image(
-              image: AssetImage("assets/images/origin.png"),
-              width: 220,
-              height: 200,
+            // 包裹在 Container 中，以确保有明确的布局约束
+            Container(
+              width: double.infinity,
+              height: 400, // 设定一个固定的高度
+              child: Stack(
+                children: [
+                  Positioned(
+                    top: _top,
+                    left: _left,
+                    child: GestureDetector(
+                      child: const Image(
+                        image: AssetImage("assets/images/origin.png"),
+                        width: 220,
+                        height: 200,
+                      ),
+                      //手指按下时会触发此回调
+                      onPanDown: (DragDownDetails e) {
+                        //打印手指按下的位置(相对于屏幕)
+                        print("用户手指按下：${e.globalPosition}");
+                      },
+                      //手指滑动时会触发此回调
+                      onPanUpdate: (DragUpdateDetails e) {
+                        //用户手指滑动时，更新偏移，重新构建
+                        setState(() {
+                          _left += e.delta.dx;
+                          _top += e.delta.dy;
+                        });
+                      },
+                      onPanEnd: (DragEndDetails e) {
+                        //打印滑动结束时在x、y轴上的速度
+                        print(e.velocity);
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
             const Image(
               image: AssetImage("assets/images/mask.jpeg"),
               width: 220,
               height: 200,
             ),
-            CutoutImageWidget()
+            CutoutImageWidget(),
           ],
         ),
       ),
@@ -107,15 +139,13 @@ class _CutoutImageWidgetState extends State<CutoutImageWidget> {
                   stops: [0.8, 1.0], // 控制透明度渐变
                 ).createShader(bounds);
               },
-              child: Container(
-                  width: 220, // 设置宽度
-                  height: 200, // 设置高度
-                  child: Image.file(File(_cutoutPath!))),
-            ),
-          ElevatedButton(
+              child: Image.file(File(_cutoutPath!), width: 220, // 设置宽度
+                    height: 200), // 设置高度,
+            )
+          else ElevatedButton(
             onPressed: _cutoutImage,
             child: Text('Cutout Image'),
-          ),
+          )
         ],
       ),
     );
