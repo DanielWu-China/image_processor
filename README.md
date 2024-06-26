@@ -1,3 +1,5 @@
+![GitHub all releases](https://img.shields.io/github/downloads/DanielWu-China/image_processor/total)
+
 # imageprocessor
 
 A new Flutter project.
